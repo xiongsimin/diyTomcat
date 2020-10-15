@@ -7,8 +7,10 @@ import java.io.IOException;
  * @Data 2020-10-14
  */
 public class MyServlet extends HttpServlet {
-    public void doGet(Request request, Response response) {
+    public void doGet(Request request, Response response) throws InterruptedException {
         String content = "<h1>MyServlet GET</h1>";
+        //并发测试
+//        Thread.sleep(100000);
         try {
             response.output(HttpProtocolUtil.getHttpHeader200(content.getBytes().length) + content);
         } catch (IOException e) {

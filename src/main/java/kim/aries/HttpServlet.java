@@ -6,7 +6,7 @@ package kim.aries;
  */
 public abstract class HttpServlet implements Servlet {
 
-    public abstract void doGet(Request request, Response response);
+    public abstract void doGet(Request request, Response response) throws InterruptedException;
 
     public abstract void doPost(Request request, Response response);
 

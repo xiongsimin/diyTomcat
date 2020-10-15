@@ -9,9 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @Author aries
@@ -33,6 +32,20 @@ public class BootStrap {
 
         //加载解析web.xml，初始化Servlet
         loadServlet();
+
+        //定义一个线程池
+
+        int corePoolSize = 10;
+        int maximumPoolSize = 50;
+        long keepAliveTime = 100L;
+        TimeUnit unit = TimeUnit.SECONDS;
+        BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(50);
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        RejectedExecutionHandler handler = new ThreadPoolExecutor.AbortPolicy();
+
+
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+
 
         ServerSocket serverSocket = new ServerSocket(port);
         System.out.println("========>diyTomcat start on port:" + port);
@@ -71,6 +84,7 @@ public class BootStrap {
          * diyTomcat V3.0
          * 需求：可以请求动态资源（Servlet）
          */
+        /*
         while (true) {
             Socket socket = serverSocket.accept();
             InputStream inputStream = socket.getInputStream();
@@ -89,6 +103,29 @@ public class BootStrap {
             }
             socket.close();
         }
+        */
+        /**
+         * V3.0基础上的多线程改造(不使用线程池)
+         *
+         */
+
+      /*  while (true) {
+            Socket socket = serverSocket.accept();
+            RequestProcessor requestProcessor = new RequestProcessor(socket, servletMap);
+            requestProcessor.start();
+        }*/
+
+        /**
+         * V3.0基础上的多线程改造(使用线程池)
+         *
+         */
+        while (true) {
+            Socket socket = serverSocket.accept();
+            RequestProcessor requestProcessor = new RequestProcessor(socket, servletMap);
+//            requestProcessor.start();
+            threadPoolExecutor.execute(requestProcessor);
+        }
+
     }
 
     private Map<String, HttpServlet> servletMap = new HashMap<String, HttpServlet>();
